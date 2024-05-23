@@ -10,7 +10,7 @@ java {
 }
 
 ext {
-    sdkVersion = "8.0.0"
+    sdkVersion = "8.1.0"
 }
 
 android {
@@ -53,13 +53,14 @@ repositories {
 
 dependencies {
     // noinspection GradleCompatible
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
     implementation 'com.google.android.gms:play-services-appset:16.0.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     // Add IronSource Mediation SDK dependency.
     implementation "com.ironsource.sdk:mediationsdk:$sdkVersion"
+    implementation 'com.ironsource:adqualitysdk:7.19.2'
     // Add AdNetworks adapters dependencies - every adapter contains also the ad network SDK.
     // Make sure you also configure the AdNetworks in your dashboard.
     // For more information: http://developers.ironsrc.com/ironsource-mobile/android/mediation-networks-android/

@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -17,6 +17,11 @@ import com.ironsource.mediationsdk.IronSourceBannerLayout
 import com.ironsource.mediationsdk.integration.IntegrationHelper
 import com.ironsource.mediationsdk.model.Placement
 import com.ironsource.mediationsdk.utils.IronSourceUtils
+import com.unity3d.mediation.LevelPlay
+import com.unity3d.mediation.LevelPlayAdSize
+import com.unity3d.mediation.LevelPlayInitListener
+import com.unity3d.mediation.LevelPlayInitRequest
+import com.unity3d.mediation.banner.LevelPlayBannerAdView
 
 
 private const val TAG = "DemoActivity"
@@ -32,6 +37,7 @@ class DemoActivity : Activity(), DemoActivityListener {
 
     private var bannerParentLayout: FrameLayout? = null
     private var ironSourceBannerLayout: IronSourceBannerLayout? = null
+    private var levelPlayBanner: LevelPlayBannerAdView? = null
     private var rewardedVideoPlacementInfo: Placement? = null
 
     companion object {
@@ -60,12 +66,14 @@ class DemoActivity : Activity(), DemoActivityListener {
         super.onResume()
         // call the IronSource onResume method
         IronSource.onResume(this)
+        levelPlayBanner?.resumeAutoRefresh()
     }
 
     override fun onPause() {
         super.onPause()
         // call the IronSource onPause method
         IronSource.onPause(this)
+        levelPlayBanner?.pauseAutoRefresh()
     }
     //endregion
 
@@ -99,13 +107,21 @@ class DemoActivity : Activity(), DemoActivityListener {
         IronSource.setLevelPlayInterstitialListener(DemoInterstitialAdListener(this))
         IronSource.addImpressionDataListener(DemoImpressionDataListener())
 
+
         // After setting the listeners you can go ahead and initialize the SDK.
         // Once the initialization callback is returned you can start loading your ads
 
         // After setting the listeners you can go ahead and initialize the SDK.
         // Once the initialization callback is returned you can start loading your ads
         log("init ironSource SDK with appKey: $APP_KEY")
-        IronSource.init(this, APP_KEY, DemoInitializationListener(this))
+        val initReq = LevelPlayInitRequest.Builder(APP_KEY)
+            .withLegacyAdFormats(listOf(LevelPlay.AdFormat.REWARDED,
+                LevelPlay.AdFormat.INTERSTITIAL,
+                LevelPlay.AdFormat.NATIVE_AD))
+            .build()
+        LevelPlay.init(this, initReq, DemoLevelPlayInitListener(this))
+
+//        IronSource.init(this, APP_KEY, DemoInitializationListener(this))
 
         // To initialize specific ad units:
         // IronSource.init(this, APP_KEY, new InitializationListener(this), IronSource.AD_UNIT.REWARDED_VIDEO, IronSource.AD_UNIT.INTERSTITIAL, IronSource.AD_UNIT.BANNER);
@@ -148,6 +164,24 @@ class DemoActivity : Activity(), DemoActivityListener {
     }
 
     fun loadBannerButtonTapped(view: View){
+        bannerParentLayout?.let {
+            destroyBanner()
+        }
+        levelPlayBanner = LevelPlayBannerAdView(this, "thnfvcsog13bhn08")
+        levelPlayBanner?.let {
+            it.setAdSize(LevelPlayAdSize.BANNER)
+            it.setBannerListener(DemoLevelPlayBannerAdListener(this))
+            // Default banner placement
+            // levelPlayBanner.setPlacementName("placementName")
+            val layoutParams = ViewGroup.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT)
+            bannerParentLayout?.addView(it, 0, layoutParams)
+            log("loadBanner")
+            // Load banner ad
+            levelPlayBanner?.loadAd()
+        }
+
+        /* Replacing banner codes with MADU codes.
         // call IronSource.destroyBanner() before loading a new banner
         bannerParentLayout?.let {
             destroyBanner()
@@ -161,7 +195,8 @@ class DemoActivity : Activity(), DemoActivityListener {
         ironSourceBannerLayout = IronSource.createBanner(this, size)
         ironSourceBannerLayout?.apply {
             // add IronSourceBanner to your container
-            val layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            val layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT)
             bannerParentLayout?.addView(this, 0, layoutParams)
 
             // set the banner listener
@@ -173,6 +208,8 @@ class DemoActivity : Activity(), DemoActivityListener {
         }  ?: run {
             log("IronSource.createBanner returned null")
         }
+        */
+
     }
 
     fun destroyBannerButtonClicked(view: View){
@@ -181,10 +218,14 @@ class DemoActivity : Activity(), DemoActivityListener {
 
     private fun destroyBanner() {
         log("destroyBanner")
-        IronSource.destroyBanner(ironSourceBannerLayout)
-        bannerParentLayout?.removeView(ironSourceBannerLayout)
-        setBannerViewVisibility(View.GONE)
-
+//        IronSource.destroyBanner(ironSourceBannerLayout)
+//        bannerParentLayout?.removeView(ironSourceBannerLayout)
+//        setBannerViewVisibility(View.GONE)
+        levelPlayBanner?.let {
+            bannerParentLayout?.removeView(it)
+            it.destroy()
+            setBannerViewVisibility(View.GONE)
+        }
         setEnablementForButton(DemoButtonIdentifiers.LOAD_BANNER_BUTTON_IDENTIFIER, true)
         setEnablementForButton(DemoButtonIdentifiers.DESTROY_BANNER_BUTTON_IDENTIFIER, false)
     }
