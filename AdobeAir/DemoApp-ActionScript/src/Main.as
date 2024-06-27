@@ -30,8 +30,8 @@ public class Main extends Sprite {
 
     public var btnShowInterstitial:SimpleButton;
     public var btnShowRewardedVideo:SimpleButton;
-    public var btnShowOfferwall:SimpleButton;
     public var loader:Loader;
+    public var Appkey;
 
     public function Main() {
         stage.align = StageAlign.TOP_LEFT;
@@ -47,50 +47,50 @@ public class Main extends Sprite {
         addEventListener(Event.DEACTIVATE, onPause);
         addEventListener(Event.ACTIVATE, onResume);
 
-        // Register for apple attribution and request ATT
-        IronSource.instance.registerAppForAdNetworkAttribution();
-        IronSource.instance.requestTrackingAuthorizationWithCompletionHandler();
-        var userStatus:int = IronSource.instance.trackingAuthorizationStatus();
-        trace("trackingAuthorizationStatus is "+userStatus.toString());
 
-        IronSource.instance.addEventListener("onRewardedVideoAdOpened", onRewardedVideoAdOpened);
-        IronSource.instance.addEventListener("onRewardedVideoAdClosed", onRewardedVideoAdClosed);
-        IronSource.instance.addEventListener("onRewardedVideoAvailabilityChanged", onRewardedVideoAvailabilityChanged);
-        IronSource.instance.addEventListener("onRewardedVideoAdStarted", onRewardedVideoAdStarted);
-        IronSource.instance.addEventListener("onRewardedVideoAdEnded", onRewardedVideoAdEnded);
-        IronSource.instance.addEventListener("onRewardedVideoAdRewarded", onRewardedVideoAdRewarded);
-        IronSource.instance.addEventListener("onRewardedVideoAdShowFailed", onRewardedVideoAdShowFailed);
-        IronSource.instance.addEventListener("onRewardedVideoAdClicked", onRewardedVideoAdClicked);
+        if (Capabilities.version.substr(0, 3) == "AND") {
+            Appkey = "1dc3db545";
 
-        IronSource.instance.addEventListener("onInterstitialAdReady", onInterstitialAdReady);
-        IronSource.instance.addEventListener("onInterstitialAdLoadFailed", onInterstitialAdLoadFailed);
-        IronSource.instance.addEventListener("onInterstitialAdOpened", onInterstitialAdOpened);
-        IronSource.instance.addEventListener("onInterstitialAdClosed", onInterstitialAdClosed);
-        IronSource.instance.addEventListener("onInterstitialAdShowSucceeded", onInterstitialAdShowSucceeded);
-        IronSource.instance.addEventListener("onInterstitialAdShowFailed", onInterstitialAdShowFailed);
-        IronSource.instance.addEventListener("onInterstitialAdClicked", onInterstitialAdClicked);
+        }else {
+            Appkey = "1dc3deecd";
+            // Register for apple attribution and request ATT
+            IronSource.instance.registerAppForAdNetworkAttribution();
+            IronSource.instance.requestTrackingAuthorizationWithCompletionHandler();
+            var userStatus:String = IronSource.instance.trackingAuthorizationStatus();
+            trace("trackingAuthorizationStatus is "+userStatus.toString());
+        }
 
-        IronSource.instance.addEventListener("onInterstitialAdRewarded", onInterstitialAdRewarded);
 
-        IronSource.instance.addEventListener("onOfferwallAvailable", onOfferwallAvailable);
-        IronSource.instance.addEventListener("onOfferwallOpened", onOfferwallOpened);
-        IronSource.instance.addEventListener("onOfferwallShowFailed", onOfferwallShowFailed);
-        IronSource.instance.addEventListener("onOfferwallAdCredited", onOfferwallAdCredited);
-        IronSource.instance.addEventListener("onGetOfferwallCreditsFailed", onGetOfferwallCreditsFailed);
-        IronSource.instance.addEventListener("onOfferwallClosed", onOfferwallClosed);
+        IronSource.instance.addEventListener("levelPlayRewardedAvailable", levelPlayRewardedAvailable);
+        IronSource.instance.addEventListener("levelPlayRewardedAdUnavailable", levelPlayRewardedAdUnavailable);
+        IronSource.instance.addEventListener("levelPlayRewardedAdOpened", levelPlayRewardedAdOpened);
+        IronSource.instance.addEventListener("levelPlayRewardedOnAdRewarded", levelPlayRewardedOnAdRewarded);
+        IronSource.instance.addEventListener("levelPlayRewardedAdShowFailed", levelPlayRewardedAdShowFailed);
+        IronSource.instance.addEventListener("levelPlayRewardedVideoAdClicked", levelPlayRewardedVideoAdClicked);
+        IronSource.instance.addEventListener("levelPlayRewardedAdClosed", levelPlayRewardedAdClosed);
 
-        IronSource.instance.addEventListener("onBannerAdLoaded", onBannerAdLoaded);
-        IronSource.instance.addEventListener("onBannerAdLoadFailed", onBannerAdLoadFailed);
-        IronSource.instance.addEventListener("onBannerAdClicked", onBannerAdClicked);
-        IronSource.instance.addEventListener("onBannerAdScreenPresented", onBannerAdScreenPresented);
-        IronSource.instance.addEventListener("onBannerAdScreenDismissed", onBannerAdScreenDismissed);
-        IronSource.instance.addEventListener("onBannerAdLeftApplication", onBannerAdLeftApplication);
+
+        IronSource.instance.addEventListener("levelPlayInterstitialAdReady", levelPlayInterstitialAdReady);
+        IronSource.instance.addEventListener("levelPlayInterstitialAdLoadFailed", levelPlayInterstitialAdLoadFailed);
+        IronSource.instance.addEventListener("levelPlayInterstitialAdOpened", levelPlayInterstitialAdOpened);
+        IronSource.instance.addEventListener("levelPlayInterstitialAdShowSucceeded", levelPlayInterstitialAdShowSucceeded);
+        IronSource.instance.addEventListener("levelPlayInterstitialAdShowFailed", levelPlayInterstitialAdShowFailed);
+        IronSource.instance.addEventListener("levelPlayInterstitialAdClicked", levelPlayInterstitialAdClicked);
+        IronSource.instance.addEventListener("levelPlayInterstitialAdClosed", levelPlayInterstitialAdClosed);
+
+
+        IronSource.instance.addEventListener("levelPlayBannerAdLoaded", levelPlayBannerAdLoaded);
+        IronSource.instance.addEventListener("levelPlayBannerAdLoadFailed", levelPlayBannerAdLoadFailed);
+        IronSource.instance.addEventListener("levelPlayBannerAdClicked", levelPlayBannerAdClicked);
+        IronSource.instance.addEventListener("levelPlayBannerAdLeftApplication", levelPlayBannerAdLeftApplication);
+        IronSource.instance.addEventListener("levelPlayBannerAdScreenPresented", levelPlayBannerAdScreenPresented);
+        IronSource.instance.addEventListener("levelPlayBannerAdScreenDismissed", levelPlayBannerAdScreenDismissed);
+
         IronSource.instance.addEventListener("onSegmentReceived", onSegmentReceived);
-
         IronSource.instance.addEventListener("onImpressionDataDidSucceed", onImpressionDataDidSucceed);
 
         IronSource.instance.setIronSourceClientSideCallbacks(true);
-        IronSource.instance.init("38760d6d");
+        IronSource.instance.init(Appkey);
         loadBanner();
         loadInterstitial();
     }
@@ -100,19 +100,13 @@ public class Main extends Sprite {
     }
 
     private function showRewardedVideo(event:MouseEvent):void {
-            if (IronSource.instance.isRewardedVideoAvailable())
-                IronSource.instance.showRewardedVideo();
-            else
-                trace("Rewarded Video is not available");
+        if (IronSource.instance.isRewardedVideoAvailable())
+            IronSource.instance.showRewardedVideo();
+        else
+            trace("Rewarded Video is not available");
     }
 
-    private function showOfferwall(event:MouseEvent):void {
-            if (IronSource.instance.isOfferwallAvailable()) {
-                IronSource.instance.showOfferwall();
-            }
-            else
-                trace("Offerwall is not available");
-    }
+
 
     private function loadInterstitial():void {
         IronSource.instance.loadInterstitial();
@@ -141,33 +135,28 @@ public class Main extends Sprite {
     }
 
     //************************** RewardedVideo Callbacks **************************
-    private function onRewardedVideoAdOpened(event:DataEvent):void {
-        trace("onRewardedVideoAdOpened");
+    private function levelPlayRewardedAdOpened(event:DataEvent):void {
+        trace("levelPlayRewardedAdOpened");
     }
 
-    private function onRewardedVideoAdClosed(event:DataEvent):void {
-        trace("onRewardedVideoAdClosed");
+    private function levelPlayRewardedAdClosed(event:DataEvent):void {
+        trace("levelPlayRewardedAdClosed");
     }
 
-    private function onRewardedVideoAvailabilityChanged(event:DataEvent):void {
-        trace("onRewardedVideoAvailabilityChanged: " + event.data);
-
-        if (event.data == "true") {
-            btnShowRewardedVideo.enabled = true;
-        } else {
-            btnShowRewardedVideo.enabled = false;
-        }
+    private function levelPlayRewardedAvailable(event:DataEvent):void {
+        trace("levelPlayRewardedAvailable: " + event.data);
+        btnRewardedVideo.label = "Show Rewarded Video";
+        btnRewardedVideo.enabled = true;
     }
 
-    private function onRewardedVideoAdStarted(event:DataEvent):void {
-        trace("onRewardedVideoAdStarted");
+    private function levelPlayRewardedAdUnavailable(event:DataEvent):void {
+        trace("levelPlayRewardedAdUnavailable: " + event.data);
+        btnRewardedVideo.label = "Rewarded Video Unavailable";
+        btnRewardedVideo.enabled = false;
     }
 
-    private function onRewardedVideoAdEnded(event:DataEvent):void {
-        trace("onRewardedVideoAdEnded");
-    }
 
-    private function onRewardedVideoAdRewarded(event:DataEvent):void {
+    private function levelPlayRewardedOnAdRewarded(event:DataEvent):void {
         var placementId:String;
         var placementName:String;
         var rewardName:String;
@@ -181,10 +170,10 @@ public class Main extends Sprite {
             rewardAmount = parseInt(placement.placement_reward_amount);
         }
 
-        trace("onRewardedVideoAdRewarded. Placement Id: " + placementId + " ; Placement name: " + placementName + " ; Reward name: " + rewardName + " ; Reward amount: " + rewardAmount);
+        trace("levelPlayRewardedOnAdRewarded. Placement Id: " + placementId + " ; Placement name: " + placementName + " ; Reward name: " + rewardName + " ; Reward amount: " + rewardAmount);
     }
 
-    private function onRewardedVideoAdShowFailed(event:DataEvent):void {
+    private function levelPlayRewardedAdShowFailed(event:DataEvent):void {
         var errorCode:String;
         var errorDescription:String;
 
@@ -194,20 +183,20 @@ public class Main extends Sprite {
             errorCode = error.error_code;
         }
 
-        trace("onRewardedVideoAdShowFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
+        trace("levelPlayRewardedAdShowFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
     }
 
-    private function onRewardedVideoAdClicked(event:DataEvent):void {
-        trace("onRewardedVideoAdClicked");
+    private function levelPlayRewardedVideoAdClicked(event:DataEvent):void {
+        trace("levelPlayRewardedVideoAdClicked");
     }
 
     //************************** Interstitial Callbacks **************************
-    private function onInterstitialAdReady(event:DataEvent):void {
-        trace("onInterstitialAdReady");
+    private function levelPlayInterstitialAdReady(event:DataEvent):void {
+        trace("levelPlayInterstitialAdReady");
         btnShowInterstitial.enabled = true;
     }
 
-    private function onInterstitialAdLoadFailed(event:DataEvent):void {
+    private function levelPlayInterstitialAdLoadFailed(event:DataEvent):void {
         var errorCode:String;
         var errorDescription:String;
 
@@ -217,25 +206,24 @@ public class Main extends Sprite {
             errorCode = error.error_code;
         }
 
-        trace("onInterstitialAdLoadFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
+        trace("levelPlayInterstitialAdLoadFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
 
         btnShowInterstitial.enabled = false;
     }
 
-    private function onInterstitialAdOpened(event:DataEvent):void {
-        trace("onInterstitialAdOpened");
+    private function levelPlayInterstitialAdOpened(event:DataEvent):void {
+        trace("levelPlayInterstitialAdOpened");
     }
 
-    private function onInterstitialAdClosed(event:DataEvent):void {
-        trace("onInterstitialAdClosed");
-        loadInterstitial();
+    private function levelPlayInterstitialAdClosed(event:DataEvent):void {
+        trace("levelPlayInterstitialAdClosed");
     }
 
-    private function onInterstitialAdShowSucceeded(event:DataEvent):void {
-        trace("onInterstitialAdShowSucceeded");
+    private function levelPlayInterstitialAdShowSucceeded(event:DataEvent):void {
+        trace("levelPlayInterstitialAdShowSucceeded");
     }
 
-    private function onInterstitialAdShowFailed(event:DataEvent):void {
+    private function levelPlayInterstitialAdShowFailed(event:DataEvent):void {
         var errorCode:String;
         var errorDescription:String;
 
@@ -245,102 +233,41 @@ public class Main extends Sprite {
             errorCode = error.error_code;
         }
 
-        trace("onInterstitialAdShowFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
+        trace("levelPlayInterstitialAdShowFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
     }
 
-    private function onInterstitialAdClicked(event:DataEvent):void {
-        trace("onInterstitialAdClicked");
+    private function levelPlayInterstitialAdClicked(event:DataEvent):void {
+        trace("levelPlayInterstitialAdClicked");
     }
 
-    private function onInterstitialAdRewarded(event:DataEvent):void {
-        trace("onInterstitialAdRewarded");
-    }
 
-    //************************** Offerwall Callbacks **************************
-    private function onOfferwallAvailable(event:DataEvent):void {
-        trace("onOfferwallAvailable: " + event.data);
-
-        if (event.data == "true") {
-            btnShowOfferwall.enabled = true;
-        } else {
-            btnShowOfferwall.enabled = false;
-        }
-    }
-
-    private function onOfferwallOpened(event:DataEvent):void {
-        trace("onOfferwallOpened");
-    }
-
-    private function onOfferwallShowFailed(event:DataEvent):void {
-        var errorCode:String;
-        var errorDescription:String;
-
-        if (event.data) {
-            var error:Object = JSON.parse(event.data);
-            errorDescription = error.error_description;
-            errorCode = error.error_code;
-        }
-
-        trace("onOfferwallShowFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
-    }
-
-    private function onOfferwallAdCredited(event:DataEvent):void {
-        var credits:int;
-        var totalCredits:int;
-        var totalCreditsFlag:String;
-
-        if (event.data) {
-            var creditsData:Object = JSON.parse(event.data);
-            credits = parseInt(creditsData.credits);
-            totalCredits = parseInt(creditsData.totalCredits);
-            totalCreditsFlag = creditsData.totalCreditsFlag;
-        }
-
-        trace("onOfferwallAdCredited. Credits: " + credits + " ; Total credits: " + totalCredits + " ; Total credits flag: " + totalCreditsFlag);
-    }
-
-    private function onGetOfferwallCreditsFailed(event:DataEvent):void {
-        var errorCode:String;
-        var errorDescription:String;
-
-        if (event.data) {
-            var error:Object = JSON.parse(event.data);
-            errorDescription = error.error_description;
-            errorCode = error.error_code;
-        }
-
-        trace("onGetOfferwallCreditsFailed. Error code: " + errorCode + " ; Description: " + errorDescription);
-    }
-
-    private function onOfferwallClosed(event:DataEvent):void {
-        trace("onOfferwallClosed");
-    }
 
     //************************** Banner Callbacks **************************
 
-    private function onBannerAdLoaded(event:DataEvent):void {
-        trace("onBannerAdLoaded");
+    private function levelPlayBannerAdLoaded(event:DataEvent):void {
+        trace("levelPlayBannerAdLoaded");
     }
 
-    private function onBannerAdLoadFailed(event:DataEvent):void {
-        trace("onBannerAdLoadFailed: " + event.data);
+    private function levelPlayBannerAdLoadFailed(event:DataEvent):void {
+        trace("levelPlayBannerAdLoadFailed: " + event.data);
     }
 
-    private function onBannerAdClicked(event:DataEvent):void {
-        trace("onBannerAdClicked");
+    private function levelPlayBannerAdClicked(event:DataEvent):void {
+        trace("levelPlayBannerAdClicked");
     }
 
-    private function onBannerAdScreenPresented(event:DataEvent):void {
-        trace("onBannerAdScreenPresented");
+    private function levelPlayBannerAdScreenPresented(event:DataEvent):void {
+        trace("levelPlayBannerAdScreenPresented");
     }
 
-    private function onBannerAdScreenDismissed(event:DataEvent):void {
-        trace("onBannerAdScreenDismissed");
+    private function levelPlayBannerAdScreenDismissed(event:DataEvent):void {
+        trace("levelPlayBannerAdScreenDismissed");
     }
 
-    private function onBannerAdLeftApplication(event:DataEvent):void {
-        trace("onBannerAdLeftApplication");
+    private function levelPlayBannerAdLeftApplication(event:DataEvent):void {
+        trace("levelPlayBannerAdLeftApplication");
     }
+
 
     //************************** Segment Callbacks **************************
     private function onSegmentReceived(event:DataEvent):void {
@@ -437,9 +364,7 @@ public class Main extends Sprite {
         btnShowRewardedVideo = addFullButton("Show Rewarded Video", this,Capabilities.screenResolutionY * 0.4 );
         btnShowRewardedVideo.addEventListener(MouseEvent.CLICK , showRewardedVideo);
         btnShowRewardedVideo.enabled = false;
-        btnShowOfferwall = addFullButton("Show Offerwall", this,Capabilities.screenResolutionY * 0.5 );
-        btnShowOfferwall.addEventListener(MouseEvent.CLICK , showOfferwall);
-        btnShowOfferwall.enabled = false;
+
         addLabel("Mediation SDK Version " + IronSource.instance.getPluginVersion(),this,Capabilities.screenResolutionY * 0.8);
     }
 }
